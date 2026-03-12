@@ -4,14 +4,24 @@ package aws.s3.security
 deny[msg] {
     input.resource_type == "aws_s3_bucket"
     not has_encryption
-    msg := sprintf("S3 bucket '%v' does not have server-side encryption enabled", [input.bucket])
+    bucket_name := object.get(input, "bucket", "unknown")
+    msg := sprintf("S3 bucket '%v' does not have server-side encryption enabled", [bucket_name])
 }
 
 # Deny S3 buckets without versioning enabled
 deny[msg] {
     input.resource_type == "aws_s3_bucket"
     not has_versioning
-    msg := sprintf("S3 bucket '%v' does not have versioning enabled", [input.bucket])
+    bucket_name := object.get(input, "bucket", "unknown")
+    msg := sprintf("S3 bucket '%v' does not have versioning enabled", [bucket_name])
+}
+
+# Deny S3 buckets with public-read ACL
+deny[msg] {
+    input.resource_type == "aws_s3_bucket"
+    input.acl == "public-read"
+    bucket_name := object.get(input, "bucket", "unknown")
+    msg := sprintf("S3 bucket '%v' has public-read ACL which is not allowed", [bucket_name])
 }
 
 # Check if bucket has server-side encryption configured
