@@ -30,23 +30,8 @@ jobs:
       - run:
           name: Validate Sample Resource
           command: |
-            cat > compliant-s3.json \<< 'JSON'
-            {
-              "resource_type": "aws_s3_bucket",
-              "bucket": "compliant-bucket",
-              "server_side_encryption_configuration": {
-                "rule": {
-                  "apply_server_side_encryption_by_default": {
-                    "sse_algorithm": "AES256"
-                  }
-                }
-              },
-              "versioning": {
-                "enabled": true
-              }
-            }
-            JSON
-            
+            printf '{"resource_type":"aws_s3_bucket","bucket":"compliant-bucket","server_side_encryption_configuration":{"rule":{"apply_server_side_encryption_by_default":{"sse_algorithm":"AES256"}}},"versioning":{"enabled":true}}' > compliant-s3.json
+
             echo "Testing compliant S3 bucket..."
             RESULT=$(opa eval -d policies/ -i compliant-s3.json "data.aws.s3.security.deny[x]" --format json)
             echo "Policy evaluation result: $RESULT"
@@ -55,23 +40,17 @@ jobs:
               echo "Compliant resource passed validation"
             else
               echo "Compliant resource failed validation"
-              echo "Violations found: $RESULT"
               exit 1
             fi
             
-            cat > non-compliant-s3.json \<< 'JSON'
-            {
-              "resource_type": "aws_s3_bucket",
-              "bucket": "non-compliant-bucket"
-            }
-            JSON
-            
+            printf '{"resource_type":"aws_s3_bucket","bucket":"non-compliant-bucket"}' > non-compliant-s3.json
+
             echo "Testing non-compliant S3 bucket..."
             VIOLATIONS=$(opa eval -d policies/ -i non-compliant-s3.json "data.aws.s3.security.deny[x]" --format json)
             echo "Violations result: $VIOLATIONS"
             
             if echo "$VIOLATIONS" | jq -e '.result | length > 0' > /dev/null; then
-              echo "Non-compliant resource correctly flagged:"
+              echo "Non-compliant resource correctly flagged"
               echo "$VIOLATIONS" | jq '.result'
             else
               echo "Non-compliant resource should have been flagged but wasn't"
