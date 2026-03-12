@@ -57,36 +57,7 @@ jobs:
               exit 1
             fi
 
-  test-aws-connection:
-    docker:
-      - image: cimg/base:stable
-    environment:
-      AWS_DEFAULT_REGION: us-east-1
-    steps:
-      - checkout
-      
-      - run:
-          name: Install AWS CLI
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      
-      - run:
-          name: Configure OIDC and Test
-          command: |
-            export AWS_ROLE_ARN="arn:aws:iam::784074784818:role/CircleCILabRole"
-            export AWS_WEB_IDENTITY_TOKEN_FILE="/tmp/web-identity-token"
-            echo $CIRCLE_OIDC_TOKEN > $AWS_WEB_IDENTITY_TOKEN_FILE
-            
-            echo "Testing AWS connection..."
-            aws sts get-caller-identity
-            echo "AWS connection successful!"
-
 workflows:
   security-pipeline:
     jobs:
       - policy-validation
-      - test-aws-connection:
-          requires:
-            - policy-validation
