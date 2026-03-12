@@ -30,7 +30,7 @@ jobs:
       - run:
           name: Validate Sample Resource
           command: |
-            cat > compliant-s3.json << 'JSON'
+            cat > compliant-s3.json \<< 'JSON'
             {
               "resource_type": "aws_s3_bucket",
               "bucket": "compliant-bucket",
@@ -59,7 +59,7 @@ jobs:
               exit 1
             fi
             
-            cat > non-compliant-s3.json << 'JSON'
+            cat > non-compliant-s3.json \<< 'JSON'
             {
               "resource_type": "aws_s3_bucket",
               "bucket": "non-compliant-bucket"
