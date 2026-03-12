@@ -8,7 +8,13 @@ jobs:
       - checkout
       - run:
           name: Install Dependencies
-          command: |
+          command:command: |
+            curl -L -o opa "https://github.com/open-policy-agent/opa/releases/download/v0.58.0/opa_linux_amd64_static"
+            chmod +x opa
+            sudo mv opa /usr/local/bin/
+            opa version
+            sudo apt-get update
+            sudo apt-get install -y jq
             curl -L -o opa https://openpolicyagent.org/downloads/v0.58.0/opa_linux_amd64_static
             chmod +x opa
             sudo mv opa /usr/local/bin/
